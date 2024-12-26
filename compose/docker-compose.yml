@@ -1,0 +1,42 @@
+version: '3.0'
+services:
+  node-1:
+    image: 'redis:latest'
+    volumes:
+      - ./7000:/redis
+    ports:
+      - "7000:7000"
+    networks:
+      - redis-cluster
+    command: redis-server /redis/redis.conf
+  node-2:
+    image: 'redis:latest'
+    volumes:
+      - ./7001:/redis
+    ports:
+      - "7001:7001"
+    networks:
+      - redis-cluster
+    command: redis-server /redis/redis.conf
+  node-3:
+    image: 'redis:latest'
+    volumes:
+      - ./7002:/redis
+    ports:
+      - "7002:7002"
+    networks:
+      - redis-cluster
+    command: redis-server /redis/redis.conf
+  redis-cluster-creator:
+    image: 'redis:latest'
+    command: redis-cli --cluster create node-1:7000 node-2:7001 node-3:7002 --cluster-yes
+    networks:
+      - redis-cluster
+    depends_on:
+      - node-1
+      - node-2
+      - node-3
+
+networks:
+  redis-cluster:
+    driver: bridge
